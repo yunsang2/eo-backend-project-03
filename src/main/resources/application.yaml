@@ -4,9 +4,9 @@ spring:
 
   datasource:
     # driver-class-name: org.h2.Driver
-    # url: jdbc:h2:~/imprint
+    # url: jdbc:h2:~/33chat
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:h2:~/imprint;AUTO_SERVER=TRUE;TIME ZONE=Asia/Seoul
+    url: jdbc:log4jdbc:h2:~/33chat;AUTO_SERVER=TRUE;TIME ZONE=Asia/Seoul
     username: sa
     password:
 
