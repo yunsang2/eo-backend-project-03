@@ -1,7 +1,7 @@
 package com.example.chat.domain.plan;
 
 import com.example.chat.domain.BaseTimeEntity;
-import com.example.chat.domain.user.user_enum.ChatId;
+import com.example.chat.domain.ChatId;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -26,6 +28,7 @@ public class UserService {
     private final PlanRepository planRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailRepository verificationRepository;
+    private final MailService mailService;
 
     private final JwtProvider jwtProvider;
 
@@ -113,5 +116,32 @@ public class UserService {
 
         // 상태 변경
         user.withdraw();
+    }
+
+    // 비밀번호 찾기 요청 (토큰 생성 및 메일 발송)
+    @Transactional
+    public void forgotPassword(UserDto.PasswordForgotRequest request) {
+        UserEntity user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
+
+        // 유추하기 힘든 랜덤 UUID 토큰 생성
+        String resetToken = UUID.randomUUID().toString();
+        user.generateResetToken(resetToken);
+
+        // 메일 발송
+        mailService.sendPasswordResetMail(user.getEmail(), resetToken);
+    }
+
+    // 비밀번호 재설정 실행
+    @Transactional
+    public void resetPassword(UserDto.PasswordResetRequest request) {
+        // 토큰으로 유저 찾기
+        UserEntity user = userRepository.findByResetToken(request.resetToken())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 재설정 토큰입니다."));
+
+        // 새 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(request.newPassword());
+        user.updatePassword(encodedPassword);
+        user.clearResetToken();
     }
 }

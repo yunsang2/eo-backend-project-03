@@ -35,12 +35,21 @@ public class MailService {
         verification.updateCode(code, expiryDate);
         verificationRepository.save(verification);
 
-        // 실제 메일 발송 로직
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("[AI 포털] 회원가입 인증 번호 안내");
-        message.setText("인증 번호는 [" + code + "] 입니다. 5분 안에 입력해 주세요.");
-        mailSender.send(message);
+        String subject = "[AI 포털] 회원가입 인증 번호 안내";
+        String text = "인증 번호는 [" + code + "] 입니다. 5분 안에 입력해 주세요.";
+
+        sendMail(email, subject, text);
+    }
+
+    // 비밀번호 재설정 메일 발송
+    public void sendPasswordResetMail(String toEmail, String resetToken) {
+
+        String subject = "[AI Chat] 비밀번호 재설정 안내";
+        String text = "비밀번호를 재설정하려면 다음 토큰을 사용해주세요.\n\n"
+                + "재설정 토큰: " + resetToken + "\n\n"
+                + "본인이 요청하지 않았다면 이 메일을 무시해주세요.";
+
+        sendMail(toEmail, subject, text);
     }
 
     // 사용자가 입력한 번호 검증
@@ -60,5 +69,14 @@ public class MailService {
         // 성공하면 isVerified = true
         verification.verifySuccess();
         return true;
+    }
+
+    // 인증 번호 및 재설정 토큰 발송
+    private void sendMail(String toEmail, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(text);
+        mailSender.send(message);
     }
 }

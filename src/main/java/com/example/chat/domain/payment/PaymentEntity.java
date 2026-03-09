@@ -3,7 +3,7 @@ package com.example.chat.domain.payment;
 import com.example.chat.domain.BaseTimeEntity;
 import com.example.chat.domain.plan.PlanEntity;
 import com.example.chat.domain.user.UserEntity;
-import com.example.chat.domain.user.user_enum.ChatId;
+import com.example.chat.domain.ChatId;
 import jakarta.persistence.*;
 import lombok.*;
 

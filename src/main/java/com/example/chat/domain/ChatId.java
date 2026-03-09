@@ -1,4 +1,4 @@
-package com.example.chat.domain.user.user_enum;
+package com.example.chat.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

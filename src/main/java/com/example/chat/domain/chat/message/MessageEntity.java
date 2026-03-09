@@ -2,7 +2,7 @@ package com.example.chat.domain.chat.message;
 
 import com.example.chat.domain.BaseTimeEntity;
 import com.example.chat.domain.chat.session.SessionEntity;
-import com.example.chat.domain.user.user_enum.ChatId;
+import com.example.chat.domain.ChatId;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -87,4 +87,25 @@ public class UserController {
         userService.withdrawUser(userDetails.getUsername());
         return ResponseEntity.ok(ApiResponseDto.success("회원 탈퇴가 완료되었습니다."));
     }
+
+
+    /**
+     * 재설정 인증 API
+     * POST /api/users/password/forgot
+     */
+    @PostMapping("/password/forgot")
+    public ResponseEntity<ApiResponseDto<Void>> forgotPassword(@Valid @RequestBody UserDto.PasswordForgotRequest request) {
+        userService.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponseDto.success("비밀번호 재설정 메일이 발송되었습니다. 메일함을 확인해주세요."));
+    }
+
+    /**
+     * 비번 변경 API
+     * POST /api/users/password/reset
+     */
+    @PostMapping("/password/reset")
+    public ResponseEntity<ApiResponseDto<Void>> resetPassword(@Valid @RequestBody UserDto.PasswordResetRequest request) {
+        userService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponseDto.success("비밀번호가 성공적으로 변경되었습니다. 새로운 비밀번호로 로그인해주세요."));
+    }
 }
