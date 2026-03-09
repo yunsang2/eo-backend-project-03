@@ -1,4 +1,4 @@
-package com.example.aiportal.service;
+package com.example.chat.service.user;
 
 import com.example.chat.domain.user.EmailVerificationEntity;
 import com.example.chat.repository.user.EmailRepository;

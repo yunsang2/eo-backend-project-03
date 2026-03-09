@@ -62,4 +62,12 @@ public class UserEntity extends BaseTimeEntity {
         }
         this.remainingTokens -= usedTokens;
     }
+
+    // 회원 탈퇴
+    public void withdraw() {
+        if (this.status == UserStatus.WITHDRAWN) {
+            throw new IllegalArgumentException("탈퇴 처리된 계정입니다.");
+        }
+        this.status = UserStatus.WITHDRAWN;
+    }
 }

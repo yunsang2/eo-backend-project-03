@@ -26,8 +26,8 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-class SecurityConfiguration {
-    private final CustomUserDetailsService customUserDetailsService;
+class SecurityConfig {
+
     private final JwtProvider jwtProvider;
     private final AuthenticationConfiguration authenticationConfiguration;
 

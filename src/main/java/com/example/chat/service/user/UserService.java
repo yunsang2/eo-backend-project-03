@@ -3,16 +3,20 @@ package com.example.chat.service.user;
 import com.example.chat.domain.plan.PlanEntity;
 import com.example.chat.domain.user.EmailVerificationEntity;
 import com.example.chat.domain.user.UserEntity;
+import com.example.chat.domain.user.jwt.JwtDto;
 import com.example.chat.domain.user.user_enum.UserRole;
 import com.example.chat.domain.user.user_enum.UserStatus;
 import com.example.chat.domain.user.UserDto;
 import com.example.chat.repository.PlanRepository;
 import com.example.chat.repository.user.EmailRepository;
 import com.example.chat.repository.user.UserRepository;
+import com.example.chat.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +27,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailRepository verificationRepository;
 
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public UserDto.Response registerUser(UserDto.SignUpRequest request) {
@@ -73,7 +77,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public String login(UserDto.LoginRequest request) {
+    public JwtDto.Response login(UserDto.LoginRequest request) {
 
         // 이메일로 유저 찾기 (가입 안된 이메일이면 예외 발생)
         UserEntity user = userRepository.findByEmail(request.email())
@@ -91,7 +95,23 @@ public class UserService {
             throw new IllegalArgumentException("탈퇴 처리된 계정입니다.");
         }
 
-        //JWT 토큰 발급
-        return jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
+        // 권한 문자열 조립 (예: "ROLE_USER")
+        String authority = "ROLE_" + user.getRole().name();
+
+        String accessToken = jwtProvider.issueAccessToken(user.getEmail(), authority);
+        String refreshToken = jwtProvider.issueRefreshToken(user.getEmail());
+
+        // 포장해서 반환
+        return new JwtDto.Response("Bearer", accessToken, refreshToken);
+    }
+
+    @Transactional
+    public void withdrawUser(String userId) {
+        // 유저 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 계정입니다."));
+
+        // 상태 변경
+        user.withdraw();
     }
 }
