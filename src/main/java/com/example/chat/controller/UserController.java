@@ -74,6 +74,30 @@ public class UserController {
         );
     }
 
+
+    /**
+     * 내 정보 조회 API
+     * GET /api/users/me
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponseDto<UserDto.Response>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        UserDto.Response response = userService.getMyInfo(userDetails.getId());
+        return ResponseEntity.ok(ApiResponseDto.success("내 정보 조회 성공", response));
+    }
+
+    /**
+     * 내 정보 수정 API
+     * PATCH /api/users/me
+     */
+    @PatchMapping("/me")
+    public ResponseEntity<ApiResponseDto<UserDto.Response>> updateMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UserDto.UpdateRequest request) {
+
+        // CustomUserDetails에서 UUID를 꺼내 서비스로 전달
+        UserDto.Response response = userService.updateMyInfo(userDetails.getId(), request);
+        return ResponseEntity.ok(ApiResponseDto.success("정보 수정이 완료되었습니다.", response));
+    }
+
+
     /**
      * 회원 탈퇴 API
      * DELETE /api/users/withdraw
@@ -84,7 +108,7 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         // 토큰에 들어있던 정보를 서비스로 넘겨서 탈퇴 처리
-        userService.withdrawUser(userDetails.getUsername());
+        userService.withdrawUser(userDetails.getId());
         return ResponseEntity.ok(ApiResponseDto.success("회원 탈퇴가 완료되었습니다."));
     }
 

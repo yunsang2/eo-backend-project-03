@@ -56,7 +56,15 @@ public class UserDto {
     public record UpdateRequest(
             @NotBlank(message = "변경할 이름을 입력해주세요.")
             String username,
-            String password
+
+            //현재 비밀번호 확인용
+            String currentPassword,
+
+            @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}",
+                    message = "비밀번호는 8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요.")
+
+            // 변경된 후 비밀번호
+            String newPassword
     ) {}
 
 

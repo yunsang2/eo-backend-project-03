@@ -37,6 +37,25 @@ class UserServiceTest {
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private JwtProvider jwtProvider;
 
+    /**
+     * 테스트 돌린 부분
+     * 회원가입 api
+     * admin 임명 api
+     * 회원가입 실패 (email 인증 X
+     * 회원가입 실패 (이미 가입된 계정일경우
+     * 로그인 api
+     * 로그인 실패 (이메일이 없을 경우
+     * 로그인 실패 (비밀번호가 안 맞는경우
+     */
+
+
+    /**
+     * 테스트 돌려야할 부분
+     *
+     * 내정보 불러오기 api
+     * 내정보 수정 api
+     */
+
 
     // 회원가입(Signup) 테스트
     @Test
@@ -172,8 +191,8 @@ class UserServiceTest {
         // 비밀번호 일치
         when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
 
-        when(jwtProvider.issueAccessToken(anyString(), anyString())).thenReturn("mock-access-token");
-        when(jwtProvider.issueRefreshToken(anyString())).thenReturn("mock-refresh-token");
+        when(jwtProvider.issueAccessToken(anyString(), anyString(), anyString())).thenReturn("mock-access-token");
+        when(jwtProvider.issueRefreshToken(anyString(), anyString())).thenReturn("mock-refresh-token");
 
         // when
         var response = userService.login(request);
@@ -214,5 +233,185 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.login(request))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("비밀번호가 일치하지 않습니다");
+    }
+
+    @Test
+    @DisplayName("내 정보 조회 성공 - 존재하는 유저 ID로 조회 시 응답 반환")
+    void getMyInfo_success() {
+        // given
+        String userId = "user-1";
+        PlanEntity basicPlan = PlanEntity.builder().id("plan-1").name("BASIC").limitTokens(100).build();
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .email("test@test.com")
+                .username("tester")
+                .role(UserRole.USER)
+                .status(UserStatus.ACTIVE)
+                .plan(basicPlan)
+                .remainingTokens(100)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        UserDto.Response response = userService.getMyInfo(userId);
+
+        // then
+        assertThat(response.id()).isEqualTo(userId);
+        assertThat(response.username()).isEqualTo("tester");
+        assertThat(response.planName()).isEqualTo("BASIC");
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    @DisplayName("내 정보 조회 실패 - 존재하지 않는 유저 ID")
+    void getMyInfo_fail_notFound() {
+        // given
+        String userId = "non-existent-id";
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> userService.getMyInfo(userId))
+                .isInstanceOf(java.util.NoSuchElementException.class)
+                .hasMessageContaining("사용자를 찾을 수 없습니다");
+    }
+
+
+    // 내 정보 수정 테스트
+    @Test
+    @DisplayName("내 정보 수정 성공 - 유저네임과 비밀번호 모두 수정")
+    void updateMyInfo_success() {
+        // given
+        String userId = "user-1";
+        UserDto.UpdateRequest request = new UserDto.UpdateRequest("newTester", "oldPassword123!", "newPassword123!");
+
+        PlanEntity basicPlan = PlanEntity.builder().id("plan-1").name("BASIC").build();
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .username("oldTester")
+                .password("oldEncodedPassword")
+                .role(UserRole.USER)
+                .status(UserStatus.ACTIVE)
+                .plan(basicPlan)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(request.username())).thenReturn(false);
+
+
+        // 현재 비밀번호 일치 확인
+        when(passwordEncoder.matches(request.currentPassword(), user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("newEncodedPassword");
+
+        // when
+        UserDto.Response response = userService.updateMyInfo(userId, request);
+
+        // then
+        assertThat(response.username()).isEqualTo("newTester");
+        verify(passwordEncoder).encode("newPassword123!");
+    }
+
+    @Test
+    @DisplayName("내 정보 수정 실패 - 이미 존재하는 유저네임으로 변경 시도")
+    void updateMyInfo_fail_duplicateUsername() {
+        // given
+        String userId = "user-1";
+        UserDto.UpdateRequest request = new UserDto.UpdateRequest("existingUser", "currentPass!", "newPass!");
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .username("myOldName")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(request.username())).thenReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> userService.updateMyInfo(userId, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("이미 사용 중인 유저네임");
+    }
+
+    @Test
+    @DisplayName("내 정보 수정 성공 - 비밀번호는 입력하지 않고 유저네임만 변경")
+    void updateMyInfo_success_onlyUsername() {
+        // given
+        String userId = "user-1";
+        UserDto.UpdateRequest request = new UserDto.UpdateRequest("onlyNameChange", "", "");
+
+        PlanEntity basicPlan = PlanEntity.builder().id("plan-1").name("BASIC").build();
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .username("oldName")
+                .password("oldEncodedPassword")
+                .role(UserRole.USER)
+                .status(UserStatus.ACTIVE)
+                .plan(basicPlan)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(request.username())).thenReturn(false);
+
+        // when
+        UserDto.Response response = userService.updateMyInfo(userId, request);
+
+        // then
+        assertThat(response.username()).isEqualTo("onlyNameChange");
+        verify(passwordEncoder, never()).encode(anyString());
+    }
+
+    @Test
+    @DisplayName("내 정보 수정 성공 - 현재 비밀번호가 일치하면 새로운 비밀번호로 변경 가능하다")
+    void updateMyInfo_success_passwordVerification() {
+        // given
+        String userId = "user-1";
+        // 파라미터 순서 예시: username, currentPassword, newPassword
+        UserDto.UpdateRequest request = new UserDto.UpdateRequest("newTester", "current123!", "new123!");
+
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .username("oldTester")
+                .password("encodedOldPassword")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(request.username())).thenReturn(false);
+
+        // 입력한 'current123!'가 DB의 'encodedOldPassword'와 맞다고 가정
+        when(passwordEncoder.matches("current123!", "encodedOldPassword")).thenReturn(true);
+        when(passwordEncoder.encode("new123!")).thenReturn("encodedNewPassword");
+
+        // when
+        UserDto.Response response = userService.updateMyInfo(userId, request);
+
+        // then
+        assertThat(response.username()).isEqualTo("newTester");
+        verify(passwordEncoder).matches("current123!", "encodedOldPassword");
+        verify(passwordEncoder).encode("new123!");
+    }
+
+    @Test
+    @DisplayName("내 정보 수정 실패 - 현재 비밀번호가 틀리면 비밀번호를 변경할 수 없다")
+    void updateMyInfo_fail_invalidCurrentPassword() {
+        // given
+        String userId = "user-1";
+        UserDto.UpdateRequest request = new UserDto.UpdateRequest("tester", "wrong-pass", "new123!");
+
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .password("encodedRealPassword")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // 현재 비밀번호 확인 로직 Mocking: 틀렸으므로 false 반환
+        when(passwordEncoder.matches("wrong-pass", "encodedRealPassword")).thenReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> userService.updateMyInfo(userId, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("현재 비밀번호가 일치하지 않습니다");
+
+        // 비밀번호가 틀렸으므로 새로운 비밀번호를 암호화하는 로직은 절대 호출되면 안 됨
+        verify(passwordEncoder, never()).encode(anyString());
     }
 }

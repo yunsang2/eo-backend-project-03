@@ -51,25 +51,11 @@ public class UserEntity extends BaseTimeEntity {
     @Column(name = "remainingTokens", nullable = false)
     private int remainingTokens;
 
+
     // 비밀번호 재설정 토큰 로직
     private String resetToken;
     private LocalDateTime tokenExpiry;
 
-    // 비즈니스 로직: 토큰 차감 메서드
-    public void decreaseTokens(int usedTokens) {
-        if (this.remainingTokens < usedTokens) {
-            throw new IllegalArgumentException("잔여 토큰이 부족합니다.");
-        }
-        this.remainingTokens -= usedTokens;
-    }
-
-    // 회원 탈퇴
-    public void withdraw() {
-        if (this.status == UserStatus.WITHDRAWN) {
-            throw new IllegalArgumentException("탈퇴 처리된 계정입니다.");
-        }
-        this.status = UserStatus.WITHDRAWN;
-    }
 
     // 비밀번호 변경 적용
     public void updatePassword(String newPassword) {
@@ -81,8 +67,37 @@ public class UserEntity extends BaseTimeEntity {
         this.resetToken = token;
     }
 
-    // 비밀번호 변경 완료 후 토큰 폐기 (보안상 매우 중요!)
+    // 비밀번호 변경 완료 후 토큰 폐기
     public void clearResetToken() {
         this.resetToken = null;
+    }
+
+
+    // 비즈니스 로직: 토큰 차감 메서드
+    public void decreaseTokens(int usedTokens) {
+        if (this.remainingTokens < usedTokens) {
+            throw new IllegalArgumentException("잔여 토큰이 부족합니다.");
+        }
+        this.remainingTokens -= usedTokens;
+    }
+
+
+    // 정보 수정
+    public void updateProfile(String username, String encodePassword) {
+        if (username != null && !username.isBlank()) {
+            this.username = username;
+        }
+        if (encodePassword != null && !encodePassword.isBlank()) {
+            this.password = encodePassword;
+        }
+    }
+
+
+    // 회원 탈퇴
+    public void withdraw() {
+        if (this.status == UserStatus.WITHDRAWN) {
+            throw new IllegalArgumentException("탈퇴 처리된 계정입니다.");
+        }
+        this.status = UserStatus.WITHDRAWN;
     }
 }

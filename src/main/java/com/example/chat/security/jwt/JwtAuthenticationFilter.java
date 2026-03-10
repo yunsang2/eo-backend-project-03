@@ -45,12 +45,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            String userId = jwtProvider.getUserId(token);
             String username = jwtProvider.getUsername(token);
             UserRole userRole = UserRole.valueOf(
                     jwtProvider.getAuthority(token).replace("ROLE_", "")
             );
 
-            UserDetails userDetails = UserMapper.toCustomUserDetails(username, userRole);
+            UserDetails userDetails = UserMapper.toCustomUserDetails(userId, username, userRole);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities()

@@ -1,4 +1,4 @@
 package com.example.chat.service;
 
-public class Planservice {
+public class PlanService {
 }
