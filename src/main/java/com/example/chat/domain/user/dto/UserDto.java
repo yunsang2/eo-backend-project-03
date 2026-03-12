@@ -1,5 +1,6 @@
-package com.example.chat.domain.user;
+package com.example.chat.domain.user.dto;
 
+import com.example.chat.domain.user.UserEntity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

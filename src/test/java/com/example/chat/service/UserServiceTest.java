@@ -2,7 +2,7 @@ package com.example.chat.service;
 
 import com.example.chat.domain.plan.PlanEntity;
 import com.example.chat.domain.user.EmailVerificationEntity;
-import com.example.chat.domain.user.UserDto;
+import com.example.chat.domain.user.dto.UserDto;
 import com.example.chat.domain.user.UserEntity;
 import com.example.chat.domain.user.user_enum.UserRole;
 import com.example.chat.domain.user.user_enum.UserStatus;

@@ -32,4 +32,24 @@ public class PlanEntity extends BaseTimeEntity {
 
     @Column(name = "price", nullable = false)
     private int price;
+
+
+
+    // 관리자용 플랜 설정 수정
+    public void updateSettings(int limitTokens, String availableModels) {
+        if (limitTokens < 0) {
+            throw new IllegalArgumentException("토큰 한도는 0보다 작을 수 없습니다.");
+        }
+
+        this.limitTokens = limitTokens;
+
+        if (availableModels != null && !availableModels.isBlank()) {
+            this.availableModels = availableModels;
+        }
+    }
+
+    // 가격 수정
+    public void updatePrice(int price) {
+        this.price = price;
+    }
 }

@@ -100,4 +100,12 @@ public class UserEntity extends BaseTimeEntity {
         }
         this.status = UserStatus.WITHDRAWN;
     }
+
+    // 관리자 전용 계정 상태 변경
+    public void updateStatus(UserStatus status) {
+        if (status == null) {
+            throw new IllegalArgumentException("유효하지 않는 상태입니다.");
+        }
+        this.status = status;
+    }
 }
