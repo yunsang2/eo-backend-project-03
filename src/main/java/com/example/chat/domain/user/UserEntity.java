@@ -108,4 +108,22 @@ public class UserEntity extends BaseTimeEntity {
         }
         this.status = status;
     }
+
+    // 시간에 맞춰 초기화되는 토큰량
+    public void resetTokens() {
+        if (this.plan != null) {
+            // PlanEntity의 limitTokens 값을 가져와 remainingTokens에 할당
+            this.remainingTokens = this.plan.getLimitTokens();
+        } else {
+            // 플랜이 없는 경우(기본값)를 대비한 로직
+            this.remainingTokens = 5000;
+        }
+    }
+
+
+    // 새로운 플랜으로 업그레이드시 토큰 충전
+    public void upgradePlan(PlanEntity newPlan) {
+        this.plan = newPlan;
+        this.remainingTokens = newPlan.getLimitTokens();
+    }
 }

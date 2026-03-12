@@ -4,6 +4,7 @@ import com.example.chat.domain.user.UserEntity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.Builder;
 
 public class UserDto {
 
@@ -70,29 +71,32 @@ public class UserDto {
 
 
     // 사용자 정보 응답 Dto
+    @Builder
     public record Response(
             String id,
             String email,
             String username,
             String role,
             String status,
-            String planId,
             String planName,
+            String availableModels,
             // 잔여 토큰
             int remainingTokens
     ) {
         // Entity -> Dto
         public static Response fromEntity(UserEntity user) {
-            return new Response(
-                    user.getId(),
-                    user.getEmail(),
-                    user.getUsername(),
-                    user.getRole().name(),
-                    user.getStatus().name(),
-                    user.getPlan() != null ? user.getPlan().getId() : null,
-                    user.getPlan() != null ? user.getPlan().getName() : "플랜 없음",
-                    user.getRemainingTokens()
-            );
+            return Response.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .username(user.getUsername())
+                    .role(user.getRole() != null ? user.getRole().name() : "USER")
+                    .status(user.getStatus() != null ? user.getStatus().name() : "ACTIVE")
+                    // 플랜이 연결되어 있다면 플랜 정보 추출
+                    .planName(user.getPlan() != null ? user.getPlan().getName() : "NONE")
+                    .remainingTokens(user.getRemainingTokens())
+                    // PlanEntity에 정의된 availableModels를 넘겨줍니다.
+                    .availableModels(user.getPlan() != null ? user.getPlan().getAvailableModels() : "gpt-3.5-turbo")
+                    .build();
         }
     }
 }

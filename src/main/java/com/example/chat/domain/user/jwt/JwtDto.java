@@ -1,5 +1,8 @@
 package com.example.chat.domain.user.jwt;
 
+import lombok.Getter;
+
+@Getter
 public class JwtDto {
     public record Response(
             String grantType,

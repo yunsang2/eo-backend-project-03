@@ -8,7 +8,9 @@ import com.example.chat.service.user.MailService;
 import com.example.chat.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -68,10 +70,26 @@ public class UserController {
         // 서비스에서 이메일/비밀번호 검증 후 Access/Refresh 토큰 세트 받아오기
         JwtDto.Response tokenResponse = userService.login(request);
 
-        // 200 OK 상태 코드와 함께 토큰 응답
-        return ResponseEntity.ok(
-                ApiResponseDto.success("로그인 성공!", tokenResponse)
-        );
+        // HttpOnly 쿠키로 생성
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", tokenResponse.accessToken())
+                .httpOnly(true)
+                .secure(false)     // TODO: 실서버(HTTPS) 배포 시 true로 변경하세요!
+                .path("/")
+                .maxAge(60 * 60)
+                .build();
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokenResponse.refreshToken())
+                .httpOnly(true)
+                .secure(false)     // TODO: 실서버 배포 시 true
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+
+        // 200 OK 상태 코드와 함께 생성된 쿠키를 헤더에 담아 응답
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(ApiResponseDto.success("로그인 성공!", tokenResponse));
     }
 
 

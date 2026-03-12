@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -267,16 +268,16 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("내 정보 조회 실패 - 존재하지 않는 유저 ID")
+    @DisplayName("내 정보 조회 실패 - 존재하지 않는 ID (메시지 일치 확인)")
     void getMyInfo_fail_notFound() {
         // given
-        String userId = "non-existent-id";
+        String userId = "wrong-id";
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> userService.getMyInfo(userId))
-                .isInstanceOf(java.util.NoSuchElementException.class)
-                .hasMessageContaining("사용자를 찾을 수 없습니다");
+                .isInstanceOf(NoSuchElementException.class)
+                .hasMessageContaining("사용자를 찾을 수 없습니다.");
     }
 
 
@@ -363,58 +364,62 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("내 정보 수정 성공 - 현재 비밀번호가 일치하면 새로운 비밀번호로 변경 가능하다")
+    @DisplayName("정보 수정 성공 - 현재 비밀번호 확인 후 변경")
     void updateMyInfo_success_passwordVerification() {
         // given
         String userId = "user-1";
-        // 파라미터 순서 예시: username, currentPassword, newPassword
-        UserDto.UpdateRequest request = new UserDto.UpdateRequest("newTester", "current123!", "new123!");
-
+        UserDto.UpdateRequest request = new UserDto.UpdateRequest("newTester", "oldPass!", "newPass!");
         UserEntity user = UserEntity.builder()
-                .id(userId)
-                .username("oldTester")
-                .password("encodedOldPassword")
-                .build();
+                .id(userId).username("oldTester").password("encodedOld")
+                .role(UserRole.USER).status(UserStatus.ACTIVE).build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
-
-        // 입력한 'current123!'가 DB의 'encodedOldPassword'와 맞다고 가정
-        when(passwordEncoder.matches("current123!", "encodedOldPassword")).thenReturn(true);
-        when(passwordEncoder.encode("new123!")).thenReturn("encodedNewPassword");
+        when(passwordEncoder.matches(request.currentPassword(), user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn("encodedNew");
 
         // when
         UserDto.Response response = userService.updateMyInfo(userId, request);
 
         // then
         assertThat(response.username()).isEqualTo("newTester");
-        verify(passwordEncoder).matches("current123!", "encodedOldPassword");
-        verify(passwordEncoder).encode("new123!");
+        verify(passwordEncoder).encode("newPass!");
     }
 
     @Test
-    @DisplayName("내 정보 수정 실패 - 현재 비밀번호가 틀리면 비밀번호를 변경할 수 없다")
+    @DisplayName("정보 수정 실패 - 잘못된 현재 비밀번호 입력 시 예외 발생")
     void updateMyInfo_fail_invalidCurrentPassword() {
         // given
         String userId = "user-1";
-        UserDto.UpdateRequest request = new UserDto.UpdateRequest("tester", "wrong-pass", "new123!");
-
+        UserDto.UpdateRequest request = new UserDto.UpdateRequest("tester", "wrong-pass", "new-pass");
         UserEntity user = UserEntity.builder()
-                .id(userId)
-                .password("encodedRealPassword")
-                .build();
+                .id(userId).username("tester").password("encodedReal")
+                .role(UserRole.USER).status(UserStatus.ACTIVE).build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        // 현재 비밀번호 확인 로직 Mocking: 틀렸으므로 false 반환
-        when(passwordEncoder.matches("wrong-pass", "encodedRealPassword")).thenReturn(false);
+        when(passwordEncoder.matches("wrong-pass", "encodedReal")).thenReturn(false);
 
         // when & then
         assertThatThrownBy(() -> userService.updateMyInfo(userId, request))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("현재 비밀번호가 일치하지 않습니다");
+                .hasMessageContaining("현재 비밀번호가 일치하지 않습니다.");
 
-        // 비밀번호가 틀렸으므로 새로운 비밀번호를 암호화하는 로직은 절대 호출되면 안 됨
         verify(passwordEncoder, never()).encode(anyString());
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 성공 - 상태가 WITHDRAWN으로 변경된다")
+    void withdrawUser_success() {
+        // given
+        String userId = "user-1";
+        UserEntity user = UserEntity.builder()
+                .id(userId).status(UserStatus.ACTIVE).build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        userService.withdrawUser(userId);
+
+        // then
+        assertThat(user.getStatus()).isEqualTo(UserStatus.WITHDRAWN);
     }
 }

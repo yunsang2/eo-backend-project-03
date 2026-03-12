@@ -1,5 +1,6 @@
 package com.example.chat.controller;
 
+import com.example.chat.domain.chat.TokenResetScheduler;
 import com.example.chat.domain.user.dto.AdminDto;
 import com.example.chat.domain.ApiResponseDto;
 import com.example.chat.domain.user.user_enum.UserStatus;
@@ -16,6 +17,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final TokenResetScheduler tokenResetScheduler;
 
     /**
      *  전체 유저 관리
@@ -59,5 +61,18 @@ public class AdminController {
     @GetMapping("/stats/usage")
     public ResponseEntity<ApiResponseDto<Void>> getUsageStats() {
         return ResponseEntity.ok(ApiResponseDto.success("사용량 통계 조회 (준비 중)"));
+    }
+
+
+
+    /**
+     * 전 사용자 토큰 수동 초기화 API (테스트 및 관리용)
+     * POST /api/admin/tokens/reset
+     */
+    @PostMapping("/tokens/reset")
+    public ResponseEntity<ApiResponseDto<Void>> manualTokenReset() {
+        // 스케줄러 내부의 로직을 그대로 호출합니다.
+        tokenResetScheduler.resetDailyTokens();
+        return ResponseEntity.ok(ApiResponseDto.success("모든 사용자의 토큰이 즉시 초기화되었습니다."));
     }
 }

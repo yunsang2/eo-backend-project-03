@@ -27,6 +27,9 @@ public class ChatService {
     private final UserRepository userRepository;
     private final AiClient aiClient;
 
+    /**
+     * AI에게 질문하기 핵심 로직
+     */
     @Transactional
     public MessageDto.Response askAi(String userId, String sessionId, MessageDto.Request request, ChatType type) {
         UserEntity user = userRepository.findById(userId)
@@ -110,6 +113,9 @@ public class ChatService {
                     .chatType(type)
                     .build();
             session = sessionRepository.save(session);
+
+            aiClient.clearAiHistory();
+
         } else {
             session = sessionRepository.findById(sessionId)
                     .orElseThrow(() -> new NoSuchElementException("존재하지 않는 채팅 세션입니다."));
