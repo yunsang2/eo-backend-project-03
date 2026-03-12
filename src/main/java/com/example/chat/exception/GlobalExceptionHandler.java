@@ -22,13 +22,25 @@ public class GlobalExceptionHandler {
 
     /*
      * 비즈니스 로직 예외 (400 Bad Request)
-     * 예: 비밀번호 불일치, 가입되지 않은 이메일, 존재하지 않는 닉네임 등
+     * 예: 비밀번호 불일치, 가입되지 않은 이메일, 존재하지 않는 닉네임 등, 잘못된 플랜(모델) 요청
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("Business Logic Error: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponseDto.fail(e.getMessage()));
+    }
+
+    /*
+     * 상태 부적절 예외 (403 Forbidden)
+     * 예: 토큰이 부족하여 AI API를 호출할 수 없을 때
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleIllegalStateException(IllegalStateException e) {
+        log.warn("Illegal State Error: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
                 .body(ApiResponseDto.fail(e.getMessage()));
     }
 

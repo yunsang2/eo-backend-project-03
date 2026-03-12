@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -44,6 +45,11 @@ class SecurityConfig {
     }
 
     @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -54,6 +60,7 @@ class SecurityConfig {
                 .authorizeHttpRequests(authority -> authority
                         .requestMatchers("/api/user/login", "/api/user/signup").permitAll()
                         .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider),

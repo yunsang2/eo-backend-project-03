@@ -2,7 +2,7 @@ package com.example.chat.service;
 
 import com.example.chat.domain.plan.PlanEntity;
 import com.example.chat.domain.user.EmailVerificationEntity;
-import com.example.chat.domain.user.UserDto;
+import com.example.chat.domain.user.dto.UserDto;
 import com.example.chat.domain.user.UserEntity;
 import com.example.chat.domain.user.user_enum.UserRole;
 import com.example.chat.domain.user.user_enum.UserStatus;
@@ -47,14 +47,16 @@ class UserServiceTest {
      * 로그인 api
      * 로그인 실패 (이메일이 없을 경우
      * 로그인 실패 (비밀번호가 안 맞는경우
+     * 내정보 불러오기 api
+     * 내정보 수정 api
      */
 
 
     /**
      * 테스트 돌려야할 부분
      *
-     * 내정보 불러오기 api
-     * 내정보 수정 api
+     *
+     *
      */
 
 

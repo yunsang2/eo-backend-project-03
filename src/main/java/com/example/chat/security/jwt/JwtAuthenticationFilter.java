@@ -1,6 +1,5 @@
 package com.example.chat.security.jwt;
 
-import com.example.chat.domain.user.UserDto;
 import com.example.chat.domain.user.UserMapper;
 import com.example.chat.domain.user.user_enum.UserRole;
 import jakarta.servlet.FilterChain;

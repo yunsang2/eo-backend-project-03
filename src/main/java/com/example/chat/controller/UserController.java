@@ -1,7 +1,7 @@
 package com.example.chat.controller;
 
 import com.example.chat.domain.ApiResponseDto;
-import com.example.chat.domain.user.UserDto;
+import com.example.chat.domain.user.dto.UserDto;
 import com.example.chat.domain.user.jwt.JwtDto;
 import com.example.chat.security.CustomUserDetails;
 import com.example.chat.service.user.MailService;

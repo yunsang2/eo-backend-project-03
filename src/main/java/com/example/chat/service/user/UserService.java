@@ -6,7 +6,7 @@ import com.example.chat.domain.user.UserEntity;
 import com.example.chat.domain.user.jwt.JwtDto;
 import com.example.chat.domain.user.user_enum.UserRole;
 import com.example.chat.domain.user.user_enum.UserStatus;
-import com.example.chat.domain.user.UserDto;
+import com.example.chat.domain.user.dto.UserDto;
 import com.example.chat.repository.PlanRepository;
 import com.example.chat.repository.user.EmailRepository;
 import com.example.chat.repository.user.UserRepository;
