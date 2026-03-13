@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
@@ -32,7 +32,7 @@ public class AdminController {
      *  계정 상태 변경
      *  PATCH /admin/user/{userId}/status
      */
-    @PatchMapping("/user/{userId}/status")
+    @PatchMapping("/users/{userId}/status")
     public ResponseEntity<ApiResponseDto<Void>> changeUserStatus(
             @PathVariable String userId,
             @RequestParam UserStatus status) {
@@ -55,17 +55,6 @@ public class AdminController {
     }
 
     /**
-     *  사용량 통계
-     *  GET /admin/stats/usage
-     */
-    @GetMapping("/stats/usage")
-    public ResponseEntity<ApiResponseDto<Void>> getUsageStats() {
-        return ResponseEntity.ok(ApiResponseDto.success("사용량 통계 조회 (준비 중)"));
-    }
-
-
-
-    /**
      * 전 사용자 토큰 수동 초기화 API (테스트 및 관리용)
      * POST /api/admin/tokens/reset
      */
@@ -74,5 +63,25 @@ public class AdminController {
         // 스케줄러 내부의 로직을 그대로 호출합니다.
         tokenResetScheduler.resetDailyTokens();
         return ResponseEntity.ok(ApiResponseDto.success("모든 사용자의 토큰이 즉시 초기화되었습니다."));
+    }
+
+    /**
+     * 플랜별 사용자 수 통계
+     * GET /api/admin/stats/plans
+     */
+    @GetMapping("/stats/plans")
+    public ResponseEntity<ApiResponseDto<List<AdminDto.PlanUsageResponse>>> getPlanStats() {
+        List<AdminDto.PlanUsageResponse> stats = adminService.getPlanUsageStats();
+        return ResponseEntity.ok(ApiResponseDto.success("플랜별 사용자 통계 조회 성공", stats));
+    }
+
+    /**
+     * AI 모델별 사용량 통계
+     * GET /api/admin/stats/usage
+     */
+    @GetMapping("/stats/usage")
+    public ResponseEntity<ApiResponseDto<List<AdminDto.ModelUsageResponse>>> getModelStats() {
+        List<AdminDto.ModelUsageResponse> stats = adminService.getModelUsageStats();
+        return ResponseEntity.ok(ApiResponseDto.success("모델별 사용량 통계 조회 성공", stats));
     }
 }

@@ -34,4 +34,16 @@ public class AdminDto {
             int limitTokens,
             String availableModels
     ) {}
+
+    // 플랜별 통계
+    public record PlanUsageResponse(
+            String planName,
+            long userCount
+    ) {}
+
+    // 모델별 사용량
+    public record ModelUsageResponse(
+            String modelName,
+            long totalUsedTokens
+    ) {}
 }

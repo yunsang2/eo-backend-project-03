@@ -60,7 +60,7 @@ class SecurityConfig {
                 .authorizeHttpRequests(authority -> authority
                         .requestMatchers("/api/user/login", "/api/user/signup").permitAll()
                         .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider),

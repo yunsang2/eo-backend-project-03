@@ -38,7 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class AdminControllerTest {
 
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
     @MockitoBean
     private AdminService adminService;
@@ -98,5 +99,56 @@ class AdminControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("사용자 상태가 LOCKED(으)로 변경되었습니다."));
+    }
+
+    @Test
+    @DisplayName("성공: 관리자 권한으로 플랜별 통계 조회 시 200 OK와 데이터를 반환한다")
+    void getPlanStats_Success_WithAdmin() throws Exception {
+        // given
+        List<AdminDto.PlanUsageResponse> mockStats = List.of(
+                new AdminDto.PlanUsageResponse("BASIC", 10L),
+                new AdminDto.PlanUsageResponse("PRO", 5L)
+        );
+        given(adminService.getPlanUsageStats()).willReturn(mockStats);
+
+        // when & then
+        mockMvc.perform(get("/api/admin/stats/plans")
+                        .with(user(adminUser)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data[0].planName").value("BASIC"))
+                .andExpect(jsonPath("$.data[0].userCount").value(10))
+                .andExpect(jsonPath("$.data[1].planName").value("PRO"))
+                .andExpect(jsonPath("$.data[1].userCount").value(5));
+    }
+
+    @Test
+    @DisplayName("성공: 관리자 권한으로 AI 모델별 사용량 통계를 조회한다")
+    void getModelStats_Success() throws Exception {
+        // Given
+        List<AdminDto.ModelUsageResponse> mockModelStats = List.of(
+                new AdminDto.ModelUsageResponse("ALAN-K", 50000L),
+                new AdminDto.ModelUsageResponse("ALAN-X", 30000L)
+        );
+        given(adminService.getModelUsageStats()).willReturn(mockModelStats);
+
+        // When & Then
+        mockMvc.perform(get("/api/admin/stats/usage")
+                        .with(user(adminUser)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data[0].modelName").value("ALAN-K"))
+                .andExpect(jsonPath("$.data[0].totalUsedTokens").value(50000))
+                .andExpect(jsonPath("$.data[1].modelName").value("ALAN-X"))
+                .andExpect(jsonPath("$.data[1].totalUsedTokens").value(30000));
+    }
+
+    @Test
+    @DisplayName("실패: 일반 유저가 통계 API 접근 시 403 Forbidden을 반환한다")
+    void getStats_Fail_WithUser() throws Exception {
+        // When & Then
+        mockMvc.perform(get("/api/admin/stats/plans")
+                        .with(user(normalUser)))
+                .andExpect(status().isForbidden());
     }
 }

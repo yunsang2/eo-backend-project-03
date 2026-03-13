@@ -5,6 +5,7 @@ import com.example.chat.domain.user.dto.AdminDto;
 import com.example.chat.domain.user.UserEntity;
 import com.example.chat.domain.user.user_enum.UserRole;
 import com.example.chat.domain.user.user_enum.UserStatus;
+import com.example.chat.repository.MessageRepository;
 import com.example.chat.repository.PlanRepository;
 import com.example.chat.repository.user.UserRepository;
 import com.example.chat.service.user.AdminService;
@@ -31,6 +32,7 @@ class AdminServiceTest {
 
     @Mock private UserRepository userRepository;
     @Mock private PlanRepository planRepository;
+    @Mock private MessageRepository messageRepository;
 
     // 전체 유저 목록 조회
     @Test
@@ -116,5 +118,50 @@ class AdminServiceTest {
         assertThat(plan.getLimitTokens()).isEqualTo(50000);
         assertThat(plan.getAvailableModels()).contains("Alan-Search");
         verify(plan).updateSettings(50000, "Alan-GPT, Alan-Search");
+    }
+
+    @Test
+    @DisplayName("성공: 플랜별 사용자 수 통계를 조회하여 DTO 리스트로 반환한다")
+    void getPlanUsageStats_Success() {
+        // given
+        // 프로젝션 인터페이스를 Mockito로 모킹
+        UserRepository.PlanCountProjection mockPlan1 = mock(UserRepository.PlanCountProjection.class);
+        when(mockPlan1.getPlanName()).thenReturn("BASIC");
+        when(mockPlan1.getUserCount()).thenReturn(10L);
+
+        UserRepository.PlanCountProjection mockPlan2 = mock(UserRepository.PlanCountProjection.class);
+        when(mockPlan2.getPlanName()).thenReturn("PRO");
+        when(mockPlan2.getUserCount()).thenReturn(5L);
+
+        when(userRepository.countUsersByPlan()).thenReturn(List.of(mockPlan1, mockPlan2));
+
+        // when
+        List<AdminDto.PlanUsageResponse> result = adminService.getPlanUsageStats();
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).planName()).isEqualTo("BASIC");
+        assertThat(result.get(0).userCount()).isEqualTo(10L);
+        assertThat(result.get(1).planName()).isEqualTo("PRO");
+        assertThat(result.get(1).userCount()).isEqualTo(5L);
+    }
+
+    @Test
+    @DisplayName("성공: 모델별 AI 사용량 통계를 조회한다")
+    void getModelUsageStats_Success() {
+        // given
+        MessageRepository.ModelUsageProjection mockUsage = mock(MessageRepository.ModelUsageProjection.class);
+        when(mockUsage.getModelName()).thenReturn("ALAN-SEARCH");
+        when(mockUsage.getTotalUsedTokens()).thenReturn(100000L);
+
+        when(messageRepository.sumTokensByModel()).thenReturn(List.of(mockUsage));
+
+        // when
+        List<AdminDto.ModelUsageResponse> result = adminService.getModelUsageStats();
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).modelName()).isEqualTo("ALAN-SEARCH");
+        assertThat(result.get(0).totalUsedTokens()).isEqualTo(100000L);
     }
 }

@@ -5,6 +5,7 @@ import com.example.chat.domain.user.dto.AdminDto;
 import com.example.chat.domain.plan.PlanEntity;
 import com.example.chat.domain.user.UserEntity;
 import com.example.chat.domain.user.user_enum.UserStatus;
+import com.example.chat.repository.MessageRepository;
 import com.example.chat.repository.PlanRepository;
 import com.example.chat.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final PlanRepository planRepository;
+    private final MessageRepository messageRepository;
 
     /**
      * 전체 유저 목록 조회 (/admin/users)
@@ -62,5 +64,19 @@ public class AdminService {
 
         // 플랜 엔티티의 필드 수정
         plan.updateSettings(request.limitTokens(), request.availableModels());
+    }
+
+    @Transactional
+    public List<AdminDto.PlanUsageResponse> getPlanUsageStats() {
+        return userRepository.countUsersByPlan().stream()
+                .map(p -> new AdminDto.PlanUsageResponse(p.getPlanName(), p.getUserCount()))
+                .toList();
+        }
+
+    @Transactional
+    public List<AdminDto.ModelUsageResponse> getModelUsageStats() {
+        return messageRepository.sumTokensByModel().stream()
+                .map(m -> new AdminDto.ModelUsageResponse(m.getModelName(), m.getTotalUsedTokens()))
+                .toList();
     }
 }
