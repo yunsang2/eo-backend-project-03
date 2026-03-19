@@ -23,12 +23,12 @@ public class PaymentEntity extends BaseTimeEntity {
     // 누가 결제했는지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity userId;
+    private UserEntity user;
 
     // 어떤 플랜을 샀는지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false)
-    private PlanEntity planId;
+    private PlanEntity plan;
 
     @Column(nullable = false)
     private int amount;

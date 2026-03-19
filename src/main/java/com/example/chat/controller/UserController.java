@@ -6,6 +6,7 @@ import com.example.chat.domain.user.jwt.JwtDto;
 import com.example.chat.security.CustomUserDetails;
 import com.example.chat.service.user.MailService;
 import com.example.chat.service.user.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -76,6 +77,7 @@ public class UserController {
                 .secure(false)     // TODO: 실서버(HTTPS) 배포 시 true로 변경하세요!
                 .path("/")
                 .maxAge(60 * 60)
+                .sameSite("Lax")
                 .build();
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", tokenResponse.refreshToken())
@@ -83,6 +85,7 @@ public class UserController {
                 .secure(false)     // TODO: 실서버 배포 시 true
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
                 .build();
 
         // 200 OK 상태 코드와 함께 생성된 쿠키를 헤더에 담아 응답
@@ -90,6 +93,31 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
                 .body(ApiResponseDto.success("로그인 성공!", tokenResponse));
+    }
+
+    /**
+     * 로그아웃 API
+     * POST /api/users/logout
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponseDto<Void>> logout(HttpServletResponse response) {
+        // 만료시간(maxAge)을 0으로 설정하여 브라우저의 쿠키를 즉시 덮어씌워서 삭제합니다.
+        ResponseCookie deleteAccess = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        ResponseCookie deleteRefresh = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteAccess.toString())
+                .header(HttpHeaders.SET_COOKIE, deleteRefresh.toString())
+                .body(ApiResponseDto.success("로그아웃 되었습니다."));
     }
 
 
@@ -108,7 +136,7 @@ public class UserController {
      * PATCH /api/users/me
      */
     @PatchMapping("/me")
-    public ResponseEntity<ApiResponseDto<UserDto.Response>> updateMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UserDto.UpdateRequest request) {
+    public ResponseEntity<ApiResponseDto<UserDto.Response>> updateMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody UserDto.UpdateRequest request) {
 
         // CustomUserDetails에서 UUID를 꺼내 서비스로 전달
         UserDto.Response response = userService.updateMyInfo(userDetails.getId(), request);

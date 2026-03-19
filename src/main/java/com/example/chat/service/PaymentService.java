@@ -29,13 +29,14 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final PlanRepository planRepository;
 
-    // application.yml에 설정한 Iamport API Key와 Secret을 주입받아 클라이언트를 초기화
     public PaymentService(
             @Value("${iamport.api.key}") String apiKey,
             @Value("${iamport.api.secret}") String apiSecret,
             PaymentRepository paymentRepository,
             UserRepository userRepository,
             PlanRepository planRepository) {
+
+        log.info("💳 포트원 클라이언트 초기화 중...");
         this.iamportClient = new IamportClient(apiKey, apiSecret);
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
@@ -43,59 +44,73 @@ public class PaymentService {
     }
 
     /**
-     * 포트원 결제 내역을 검증하고, 유저의 플랜을 업그레이드합니다.
+     * 결제 검증 및 플랜 업그레이드
      */
     @Transactional
     public PaymentDto.VerificationResponse verifyAndProcessPayment(String userId, PaymentDto.VerificationRequest request) {
         try {
-            // 포트원 서버에서 실제 결제 내역 조회 (impUid 사용)
+            log.info("💳 결제 검증 시작 - imp_uid: {}, planName: {}", request.impUid(), request.planName());
+
+            // 1. 포트원 서버 내역 조회
             IamportResponse<Payment> iamportResponse = iamportClient.paymentByImpUid(request.impUid());
 
-            if (iamportResponse.getResponse() == null) {
-                throw new IllegalArgumentException("포트원 서버에 존재하지 않는 결제 내역입니다.");
+            if (iamportResponse == null || iamportResponse.getResponse() == null) {
+                log.error("❌ 결제 내역 조회 실패");
+                throw new IllegalArgumentException("존재하지 않는 결제 번호입니다.");
             }
 
-            // 결제 정보 검증
             Payment iamportPayment = iamportResponse.getResponse();
 
-            // DB에서 사용자가 결제하려던 플랜 정보를 추출
-            PlanEntity targetPlan = planRepository.findById(request.planId())
-                    .orElseThrow(() -> new NoSuchElementException("해당 플랜을 찾을 수 없습니다."));
+            // 2. 플랜 정보 조회
+            PlanEntity targetPlan = planRepository.findByName(request.planName())
+                    .orElseThrow(() -> new NoSuchElementException("해당 플랜을 찾을 수 없습니다: " + request.planName()));
 
-            // 포트원에서 실제로 결제된 금액
+            // 3. 금액 검증 (PlanEntity 필드: price)
             int actualPaidAmount = iamportPayment.getAmount().intValue();
-
-            // 검증 로직: 프론트가 보낸 금액 == 포트원 실제 결제 금액 == DB 플랜 가격
             if (actualPaidAmount != request.amount() || actualPaidAmount != targetPlan.getPrice()) {
-                // 금액이 다를시 예외 발생
-                throw new IllegalArgumentException("결제 금액이 위변조되었습니다. 검증에 실패했습니다.");
+                log.error("❌ 금액 불일치! 실제: {}, 요청: {}, DB가격: {}",
+                        actualPaidAmount, request.amount(), targetPlan.getPrice());
+                throw new IllegalArgumentException("결제 금액 위변조가 감지되었습니다.");
             }
 
-            // 포트원에서 결제하려는 사용자
+            // 4. 유저 조회
             UserEntity user = userRepository.findById(userId)
                     .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
 
-            // 검증 성공 시 결제 내역 DB 저장
+            // 5. 결제 내역 DB 저장
+            // 🚨 해결: 엔티티의 필드명이 userId, planId이지만 타입이 객체이므로 객체(user, targetPlan)를 전달합니다.
             PaymentEntity paymentEntity = PaymentEntity.builder()
-                    .userId(user)
-                    .planId(targetPlan)
+                    .user(user)
+                    .plan(targetPlan)
                     .amount(actualPaidAmount)
                     .status(PaymentStatus.COMPLETED)
                     .build();
             paymentRepository.save(paymentEntity);
 
-            // UserEntity 내부에 구현한 업그레이드 메서드 호출
+            // 6. 유저 플랜 업그레이드
             user.upgradePlan(targetPlan);
+            log.info("✅ 결제 성공 및 플랜 업그레이드 완료: {}", user.getEmail());
 
+            // 🚨 record 타입 DTO는 new 생성자로 반환합니다.
             return new PaymentDto.VerificationResponse(
                     paymentEntity.getId(),
                     targetPlan.getName(),
                     "COMPLETED"
             );
 
-        } catch (IamportResponseException | IOException e) {
-            log.error("포트원 결제 검증 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException("결제 검증 통신에 실패했습니다. 관리자에게 문의하세요.");
+        } catch (IamportResponseException e) {
+            log.error("❌ 포트원 API 에러: {}", e.getMessage());
+            throw new RuntimeException("포트원 인증 실패");
+        } catch (IOException e) {
+            log.error("❌ 통신 에러: {}", e.getMessage());
+            throw new RuntimeException("결제 서버 통신 실패");
         }
+    }
+
+    /**
+     * 관리자용 매출 조회
+     */
+    public long getTotalSales() {
+        return paymentRepository.sumTotalCompletedAmount().orElse(0L);
     }
 }

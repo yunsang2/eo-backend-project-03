@@ -44,11 +44,12 @@ public class ChatService {
         // 프롬프트 엔지니어링 적용 (optimizePrompt 호출)
         String optimizedPrompt = optimizePrompt(request.content(), type);
 
-        // AI 모델 및 API 호출
+        // AI 모델 이름 처리 (빈 값이면 기본값 gpt-4o-mini 세팅)
         String model = (request.modelName() == null || request.modelName().isBlank())
                 ? "gpt-4o-mini" : request.modelName();
 
-        if (user.getPlan().getName().equals("BASIC") && model.toLowerCase().contains("gpt-4")) {
+        // BASIC 플랜이어도 gpt-4o-mini는 정상적으로 통과되도록
+        if (user.getPlan().getName().equals("BASIC") && model.equalsIgnoreCase("gpt-4")) {
             throw new IllegalArgumentException("BASIC 플랜에서는 gpt-4 모델을 사용할 수 없습니다.");
         }
 
@@ -97,8 +98,11 @@ public class ChatService {
             throw new IllegalStateException("토큰이 부족합니다. 플랜을 업그레이드하거나 충전해주세요.");
         }
 
+        // 전달받은 modelName이 null일 경우를 대비해 targetModel을 먼저 확정
+        String targetModel = (modelName == null || modelName.isBlank()) ? "gpt-4o-mini" : modelName;
+
         // 모델 제한 (PlanService와 연동 후 보완)
-        if (user.getPlan().getName().equals("BASIC") && modelName.contains("gpt-4")) {
+        if (user.getPlan().getName().equals("BASIC") && targetModel.equalsIgnoreCase("gpt-4")) {
             throw new IllegalArgumentException("현재 플랜에서 지원하지 않는 모델입니다.");
         }
 
@@ -126,7 +130,7 @@ public class ChatService {
                 .session(session)
                 .role(MessageRole.USER)
                 .content(content)
-                .modelName(modelName)
+                .modelName(targetModel)
                 .usedTokens(0)
                 .build();
         messageRepository.save(userMessage);

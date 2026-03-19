@@ -11,7 +11,7 @@ public class PaymentDto {
             // 서버에서 생성한 고유 번호
             String merchantUid,
             // 결제하려는 플랜
-            String planId,
+            String planName,
             // 결제한 금액
             int amount
     ) {}

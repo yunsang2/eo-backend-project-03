@@ -65,6 +65,9 @@ dependencies {
 
     // 5. 결제 시스템
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.22'
+
+    // 6. 소셜 로그인
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 }
 
 tasks.named('test') {

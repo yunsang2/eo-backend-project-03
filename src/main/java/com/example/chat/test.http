@@ -1,0 +1,48 @@
+### 1. 로그인 (실행 시 accessToken을 인텔리제이가 자동 저장합니다!)
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "password": "Password123!"
+}
+
+> {%
+    client.global.set("auth_token", response.body.data.accessToken);
+%}
+
+### 2. 대망의 AI 채팅 테스트! (자동 저장된 토큰 사용)
+POST http://localhost:8080/api/chat/ask
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "안녕! 넌 누구야? 3줄로 요약해서 대답해줘.",
+  "modelName": "gpt-4"
+}
+
+### 3. 내 남은 토큰 깎였는지 확인
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{auth_token}}
+
+
+### 4. 웹 페이지 요약 테스트 (PRO 플랜 이상)
+POST http://localhost:8080/api/chat/summary
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "https://ko.wikipedia.org/wiki/스프링_프레임워크",
+  "modelName": "gpt-4o-mini"
+}
+
+
+### 5. 유튜브 영상 요약 테스트 (PREMIUM 플랜 전용)
+POST http://localhost:8080/api/chat/youtube
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "modelName": "gpt-4o-mini"
+}
