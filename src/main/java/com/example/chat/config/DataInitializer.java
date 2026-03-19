@@ -74,11 +74,11 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("✅ 테스트용 계정 자동 생성 완료 (ID: test@gmail.com / PW: Password123!)");
         }
 
-        userRepository.findByEmail("test@gmail.com").ifPresent(user -> {
-            PlanEntity premiumPlan = planRepository.findByName("PREMIUM").orElseThrow();
-            user.upgradePlan(premiumPlan);
-            userRepository.save(user);
-            System.out.println("🚀 테스트 유저(test@gmail.com)가 PREMIUM 플랜으로 강제 업그레이드 되었습니다!");
-        });
+//        userRepository.findByEmail("test@gmail.com").ifPresent(user -> {
+//            PlanEntity premiumPlan = planRepository.findByName("PREMIUM").orElseThrow();
+//            user.upgradePlan(premiumPlan);
+//            userRepository.save(user);
+//            System.out.println("🚀 테스트 유저(test@gmail.com)가 PREMIUM 플랜으로 강제 업그레이드 되었습니다!");
+//        });
     }
 }

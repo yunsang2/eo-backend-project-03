@@ -20,6 +20,10 @@ public class PaymentEntity extends BaseTimeEntity {
     @Column(name = "id", nullable = false, unique = true, updatable = false)
     private String id = ChatId.generateUUID(ChatId.PAYMENT);
 
+    // 포트원 결제 고유 번호
+    @Column(name = "payment_id", nullable = false, unique = true)
+    private String paymentId;
+
     // 누가 결제했는지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

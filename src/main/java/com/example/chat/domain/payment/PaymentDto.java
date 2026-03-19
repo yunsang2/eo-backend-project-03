@@ -6,10 +6,8 @@ public class PaymentDto {
      * 프론트에서 결제 완료 후 검증을 위해 보내는 요청
      */
     public record VerificationRequest(
-            // 포트원 결제 번호
-            String impUid,
-            // 서버에서 생성한 고유 번호
-            String merchantUid,
+            // 포트원 V2 결제 고유 ID
+            String paymentId,
             // 결제하려는 플랜
             String planName,
             // 결제한 금액

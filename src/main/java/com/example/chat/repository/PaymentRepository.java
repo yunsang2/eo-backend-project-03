@@ -12,7 +12,10 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, String> 
     // 특정 유저의 결제 내역 조회
     List<PaymentEntity> findAllByUserIdOrderByCreatedAtDesc(String user);
 
-    // 🚨 sumTotalCompletedAmount 메서드가 누락되어 발생한 에러를 해결합니다.
+    // V2 규격에 맞춰 paymentId로 결제 내역을 조회
+    Optional<PaymentEntity> findByPaymentId(String paymentId);
+
+    // sumTotalCompletedAmount 메서드가 누락되어 발생한 에러를 해결
     @Query("SELECT SUM(p.amount) FROM PaymentEntity p WHERE p.status = 'COMPLETED'")
     Optional<Long> sumTotalCompletedAmount();
 }
