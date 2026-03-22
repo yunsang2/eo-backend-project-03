@@ -17,7 +17,7 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "content": "넌 어떤 기능을 제공해줘?",
+  "content": "안녕 오늘 기분어때",
   "modelName": "gpt-4"
 }
 
