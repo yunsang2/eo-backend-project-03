@@ -17,7 +17,7 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "content": "안녕! 넌 누구야? 3줄로 요약해서 대답해줘.",
+  "content": "넌 어떤 기능을 제공해줘?",
   "modelName": "gpt-4"
 }
 
@@ -32,7 +32,7 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "content": "https://ko.wikipedia.org/wiki/스프링_프레임워크",
+  "content": "https://developer.mozilla.org/ko/",
   "modelName": "gpt-4o-mini"
 }
 
@@ -43,6 +43,6 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "content": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "content": "https://www.youtube.com/watch?v=TKVd8Z5FB2M",
   "modelName": "gpt-4o-mini"
 }

@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    // 1. 핵심 웹 및 보안 (사용자님 원본 + 필수 스타터)
+    // 1. 핵심 웹 및 보안
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-h2console'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -35,10 +35,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-    // 2. AI 및 JSON 처리 (33chat 필수 추가분)
+    // 2. AI 및 JSON 처리
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'io.github.thoroldvix:youtube-transcript-api:0.4.0'
@@ -54,7 +55,7 @@ dependencies {
     implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    // 4. 테스트 (파편화된 설정을 통합하여 symbol 오류 해결)
+    // 4. 테스트
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
