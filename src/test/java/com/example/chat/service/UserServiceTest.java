@@ -315,7 +315,7 @@ class UserServiceTest {
         verify(passwordEncoder).encode("newPassword123!");
     }
 
-    
+
     @Test
     @DisplayName("내 정보 수정 성공 - 비밀번호는 입력하지 않고 유저네임만 변경")
     void updateMyInfo_success_onlyUsername() {
