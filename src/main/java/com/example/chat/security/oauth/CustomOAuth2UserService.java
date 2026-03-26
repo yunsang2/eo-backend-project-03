@@ -2,6 +2,7 @@ package com.example.chat.security.oauth;
 
 import com.example.chat.domain.plan.PlanEntity;
 import com.example.chat.domain.user.UserEntity;
+import com.example.chat.domain.user.user_enum.UserProvider;
 import com.example.chat.domain.user.user_enum.UserRole;
 import com.example.chat.domain.user.user_enum.UserStatus;
 import com.example.chat.repository.PlanRepository;
@@ -47,12 +48,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
                     return userRepository.save(UserEntity.builder()
                             .email(email)
-                            // 중복 방지를 위한 랜덤 닉네임 생성
-                            .username(name + "_" + UUID.randomUUID().toString().substring(0, 5))
+                            .username(name)
                             // 소셜 로그인 유저는 비밀번호를 사용하지 않으므로 랜덤값 저장
                             .password(UUID.randomUUID().toString())
                             .role(UserRole.USER)
                             .status(UserStatus.ACTIVE)
+                            .provider(UserProvider.GOOGLE)
                             .plan(basicPlan)
                             .remainingTokens(basicPlan.getLimitTokens())
                             .build());

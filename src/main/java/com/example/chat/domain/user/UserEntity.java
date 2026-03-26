@@ -3,6 +3,7 @@ package com.example.chat.domain.user;
 import com.example.chat.domain.BaseTimeEntity;
 import com.example.chat.domain.plan.PlanEntity;
 import com.example.chat.domain.ChatId;
+import com.example.chat.domain.user.user_enum.UserProvider;
 import com.example.chat.domain.user.user_enum.UserRole;
 import com.example.chat.domain.user.user_enum.UserStatus;
 import jakarta.persistence.*;
@@ -45,6 +46,12 @@ public class UserEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private PlanEntity plan;
+
+    // 로그인 방식
+    @Enumerated(EnumType.STRING)
+    @Column(name = "provider", nullable = false)
+    @Builder.Default
+    private UserProvider provider = UserProvider.LOCAL;
 
     // 잔여 토큰량
     @Column(name = "remainingTokens", nullable = false)

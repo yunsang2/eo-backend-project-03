@@ -78,6 +78,7 @@ public class UserDto {
             String role,
             String status,
             String planName,
+            String provider,
             String availableModels,
             // 잔여 토큰
             int remainingTokens,
@@ -93,6 +94,7 @@ public class UserDto {
                     .role(user.getRole().name())
                     .status(user.getStatus().name())
                     .planName(user.getPlan() != null ? user.getPlan().getName() : "NONE")
+                    .provider(user.getProvider().name())
                     .remainingTokens(user.getRemainingTokens())
                     .availableModels(user.getPlan() != null ? user.getPlan().getAvailableModels() : "gpt-3.5-turbo")
                     .planEndDate(user.getPlanEndDate())

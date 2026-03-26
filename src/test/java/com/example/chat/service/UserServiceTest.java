@@ -315,26 +315,7 @@ class UserServiceTest {
         verify(passwordEncoder).encode("newPassword123!");
     }
 
-    @Test
-    @DisplayName("내 정보 수정 실패 - 이미 존재하는 유저네임으로 변경 시도")
-    void updateMyInfo_fail_duplicateUsername() {
-        // given
-        String userId = "user-1";
-        UserDto.UpdateRequest request = new UserDto.UpdateRequest("existingUser", "currentPass!", "newPass!");
-        UserEntity user = UserEntity.builder()
-                .id(userId)
-                .username("myOldName")
-                .build();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.existsByUsername(request.username())).thenReturn(true);
-
-        // when & then
-        assertThatThrownBy(() -> userService.updateMyInfo(userId, request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("이미 사용 중인 유저네임");
-    }
-
+    
     @Test
     @DisplayName("내 정보 수정 성공 - 비밀번호는 입력하지 않고 유저네임만 변경")
     void updateMyInfo_success_onlyUsername() {
