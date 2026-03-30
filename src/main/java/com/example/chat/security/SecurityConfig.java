@@ -67,7 +67,8 @@ public class SecurityConfig {
                                 "/api/users/verify-mail",
                                 "/api/users/password/**"
                         ).permitAll()
-                        .requestMatchers("/", "/index.html", "/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/css/**", "/javascript/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 

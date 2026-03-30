@@ -1,0 +1,307 @@
+/* Theme */
+:root {
+    --main-bg: #0B0B0C;
+    --main-border: 1px solid rgba(255, 255, 255, 30%);
+    
+    --text-01: rgba(255, 255, 255, 90%);
+    --text-02: rgba(255, 255, 255, 80%);
+    --text-03: rgba(255, 255, 255, 70%);
+    --text-04: rgba(255, 255, 255, 60%);
+    --text-05: rgba(255, 255, 255, 50%);
+    --text-07: rgba(255, 255, 255, 30%);
+
+    --red: #FFA096;
+    --yellow: #FFDE96;
+}
+
+body {
+    overflow: hidden;
+}
+
+*::-webkit-scrollbar {
+    width: 4px; height: 4px;
+    background-color: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--text-07);
+    border-radius: 3px;
+}
+
+#app {
+    --item-size: 40px;
+    --container-size: calc(var(--item-size) + 12px);
+    
+    display: flex;
+
+    width: 100vw; height: 100vh;
+    box-sizing: border-box;
+
+    background: var(--main-bg);
+    color: var(--text-01);
+
+    overflow: hidden;
+}
+
+#sidebar {
+    display: flex;
+    flex-direction: column;
+
+    width: 250px;
+
+    border-right: var(--main-border);
+    color: var(--text-02);
+    white-space: nowrap;
+
+    transition: width 160ms ease-in-out;
+}
+
+#sidebar > * > ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    padding-right: 1px;
+    margin: 6px 1px 6px 6px;
+    overflow-y: scroll;
+}
+
+#sidebar > * > ul > li {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: var(--item-size);
+    transition: 30ms ease;
+}
+
+#sidebar > * > ul > li custom-icon {
+    font-size: 20px;
+}
+
+#sidebar > * > ul > li > custom-a,
+#sidebar > * > ul > li > custom-button {
+    display: inline-flex;
+    justify-content: left;
+    align-items: center;
+
+    width: 100%; height: 100%;
+}
+
+#sidebar > * > ul > li > custom-a:hover {
+    text-decoration: none;
+}
+
+#sidebar > * > ul > li > custom-a > .content,
+#sidebar > * > ul > li > custom-button > .content {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#sidebar > * > ul > li > custom-a > .content > pre.shortcut,
+#sidebar > * > ul > li > custom-button > .content > pre.shortcut {
+    position: absolute;
+    right: 6px;
+}
+
+#sidebar > header > ul > li > section:first-child > custom-icon {
+    font-size: 26px;
+}
+
+#sidebar > header > ul > li > section:last-child {
+    position: absolute;
+    right: 0;
+    transition: 80ms ease;
+}
+
+#sidebar > header > ul > li > section > custom-button {
+    width: var(--item-size);
+    height: var(--item-size);
+}
+
+#sidebar > section {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    position: relative;
+
+    min-height: 0;
+
+    transition: opacity 120ms ease;
+}
+
+#sidebar > section > h1 {
+    padding-left: 12px;
+    margin: 20px 0 8px;
+
+    color: var(--purple);
+    font: .82em / 1 sans-serif;
+}
+
+#sidebar > section > ul {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+}
+
+#sidebar > section > ul > li > custom-a > .content {
+    padding-left: 6px;
+    mask-image: linear-gradient(to right, black 0%, 80%, transparent 100%);
+}
+
+#sidebar > section > ul > li > custom-a > custom-button.more {
+    opacity: 0;
+}
+
+#sidebar > section > ul > li > custom-a:hover > custom-button.more {
+    opacity: .6;
+}
+
+#sidebar > section > ul > li > custom-a > custom-button.more:hover {
+    opacity: 1;
+}
+
+#sidebar > section > ul > li > custom-a > custom-button.more > custom-icon {
+    font-size: var(--item-size);
+}
+
+:root[data-sidebar ~= "collapsed"] #sidebar {
+    width: var(--container-size);
+}
+
+:root[data-sidebar ~= "collapsed"] #sidebar > header > ul > li > section:last-child:has(custom-button:hover) {
+    background: var(--main-bg);
+}
+
+:root[data-sidebar ~= "collapsed"] #sidebar > header > ul > li > section:last-child > custom-button {
+    opacity: 0;
+    transition: 80ms ease;
+}
+
+:root[data-sidebar ~= "collapsed"] #sidebar > header > ul > li > section:last-child > custom-button:hover {
+    opacity: 1;
+}
+
+:root[data-sidebar ~= "collapsed"] #sidebar > nav > ul > li > custom-a > .content,
+:root[data-sidebar ~= "collapsed"] #sidebar > footer > ul > li > custom-button > .content,
+:root[data-sidebar ~= "collapsed"] #sidebar > section {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ============================================ */
+
+#main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================ */
+
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--container-size);
+}
+
+#header > section {
+    display: flex;
+    align-items: center;
+}
+
+#header > section:first-child {
+    justify-content: left;
+}
+
+#header > section:last-child {
+    justify-content: right;;
+}
+
+#header > section:not(:first-child, :last-child) {
+    flex: 1;
+    justify-content: center;
+}
+
+#header > section .plan-btn {
+    border: var(--main-border);
+    border-radius: 40px;
+    padding-right: 12px;
+}
+
+#header > section .plan-btn > custom-icon {
+    font-size: 24px;
+}
+
+/* ============================================ */
+
+#content {
+    flex: 1;
+    position: relative;
+}
+
+#prompt {
+    position: absolute;
+    top: 40%; left: 50%;
+    transform: translateX(-50%);
+
+    max-width: 780px;
+
+    width: 80%;
+    max-width: 780px;
+    padding: 16px;
+
+    border: var(--main-border);
+    border-radius: 16px;
+}
+
+#prompt > form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    width: 100%; height: 100%;
+}
+
+#prompt > form > p {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#prompt > form > p > textarea {
+    width: 100%; height: 48px;
+    max-height: 360px;
+    padding: 8px;
+    box-sizing: border-box;
+    resize: none;
+
+    font: 300 .88em / 24px sans-serif;
+}
+
+#prompt > form > p > span {
+    display: flex;
+    gap: 8px;
+}
+
+#prompt > form > p > span > select {
+    background: var(--main-bg);
+    border: var(--main-border);
+    border-radius: 6px;
+    padding: 0 4px;
+    color: inherit;
+}
+
+#prompt > form > p > span > select > option {
+    background: var(--main-bg);
+}
+
+#prompt > form > p > span > custom-button {
+    border: var(--main-border);
+    border-radius: 6px;
+    font-size: 20px;
+}

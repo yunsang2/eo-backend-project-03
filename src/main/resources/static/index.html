@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>33CHAT</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let sidebarStatus = [];
+
+        (function () {
+            try {
+                sidebarStatus = JSON.parse(localStorage.getItem('sidebar-status') || '[]');
+
+                if (sidebarStatus.length > 0) {
+                    document.documentElement.dataset['sidebar'] = sidebarStatus.join(' ');
+                }
+            } catch (e) {
+                sidebarStatus = [];
+                localStorage.removeItem('sidebar-status');
+            }
+        })();
+    </script>
+    <script type="module" src="./javascript/index.js" defer></script>
+
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/custom.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div id="app">
+
+    <aside id="sidebar">
+        <header>
+            <ul>
+                <li>
+                    <section>
+                        <custom-icon icon="logo"></custom-icon>
+                    </section>
+                    <section>
+                        <custom-button onclick="toggleSidebar()" shortcut="ctrl + /" value="사이드바 토글" class="card hover">
+                            <custom-icon icon="side"></custom-icon>
+                        </custom-button>
+                    </section>
+                </li>
+            </ul>
+        </header>
+        <nav>
+            <ul>
+                <li>
+                    <custom-a href="/" shortcut="ctrl + shift + O">
+                        <custom-icon icon="new"></custom-icon>
+                        <span class="content">새 채팅<span class="shortcut"></span></span>
+                    </custom-a>
+                </li>
+                <li>
+                    <custom-a href="/search" shortcut="ctrl + K">
+                        <custom-icon icon="search"></custom-icon>
+                        <span class="content">채팅 기록<span class="shortcut"></span></span>
+                    </custom-a>
+                </li>
+                <li>
+                    <custom-a href="/admin/dashboard">
+                        <custom-icon icon="dashboard"></custom-icon>
+                        <span class="content">대시보드<span class="shortcut"></span></span>
+                    </custom-a>
+                </li>
+            </ul>
+        </nav>
+        <section>
+            <h1>최근 기록</h1>
+            <ul>
+                <li>
+                    <custom-a href="/chat/1">
+                        <span class="content">반갑습니다!</span>
+                        <custom-button onclick="" value="편집" class="more">
+                            <custom-icon icon="more"></custom-icon>
+                        </custom-button>
+                    </custom-a>
+                </li>
+            </ul>
+        </section>
+        <footer>
+            <ul>
+                <li id="account">
+                    <custom-button onclick="openPopup('login')" value="시작하기">
+                        <custom-icon icon="account"></custom-icon>
+                        <span class="content">시작하기</span>
+                    </custom-button>
+                </li>
+            </ul>
+        </footer>
+    </aside>
+
+    <main id="main">
+        <header id="header">
+            <section></section>
+            <section></section>
+            <section>
+                <span class="content">
+                    <span class="leftToken">
+                        <span class="label">남은 토큰량</span>
+                        <span class="amount"></span>
+                    </span>
+                </span>
+                <custom-button onclick="openPopup('account', 2)" value="플랜 구독하기" class="plan-btn">
+                    <custom-icon icon="gift"></custom-icon>
+                    <span class="content">플랜 구독하기</span>
+                </custom-button>
+            </section>
+        </header>
+        <section id="content">
+            <section id="prompt">
+                <form >
+                    <p>
+                        <textarea id="textarea" name="content" placeholder="무엇이든 물어보세요" rows="1"></textarea>
+                    </p>
+                    <p>
+                        <span></span>
+                        <span>
+                            <select name="type">
+                                <option value="ask">기본</option>
+                                <option value="summary">요약</option>
+                                <option value="youtube">유튜브 요약</option>
+                            </select>
+                            <custom-button onclick="send(this)" value="전송" shortcut="ctrl + enter">
+                                <custom-icon icon="send"></custom-icon>
+                            </custom-button>
+                        </span>
+                    </p>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <div id="popups">
+        <article class="popup" data-popup="signup">
+            <section>
+                <h1>회원가입</h1>
+                <p class="desc">이메일을 인증하고, 삼삼챗의 회원이 되어보세요!</p>
+                <form class="email-check" novalidate>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="mail" class="decorate"></custom-icon>
+                                <input type="email" name="email" placeholder="이메일" required>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="code" class="decorate"></custom-icon>
+                                <input type="text" name="code" placeholder="인증코드">
+                            </span>
+                            <custom-button onclick="emailVerify(this)">발송</custom-button>
+                        </span>
+                    </p>
+                </form>
+                <form class="info" novalidate>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="password" class="decorate"></custom-icon>
+                                <input type="password" name="password" placeholder="비밀번호" required>
+                                <custom-button onclick="togglePassword(this)" value="비밀번호 보기" class="show">
+                                    <custom-icon icon="hide"></custom-icon>
+                                </custom-button>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                               <custom-icon icon="name" class="decorate"></custom-icon>
+                                <input type="text" name="username" placeholder="이름" required>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <custom-button onclick="signup(this)">회원가입</custom-button>
+                        </span>
+                    </p>
+                    <p class="desc">
+                        <custom-a href="popup:login" class="open-popup" data-open-popup="login">이미 회원이신가요?</custom-a>
+                    </p>
+                </form>
+            </section>
+        </article>
+        <article class="popup" data-popup="login">
+            <section>
+                <h1>로그인</h1>
+                <p class="desc">로그인하여 대화를 기록하고 여러 기능들을 사용해보세요.</p>
+                <form name="login" novalidate>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="mail" class="decorate"></custom-icon>
+                                <input type="email" name="email" placeholder="이메일" required>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="password" class="decorate"></custom-icon>
+                                <input type="password" name="password" placeholder="비밀번호" required>
+                                <custom-button onclick="togglePassword(this)" class="show">
+                                    <custom-icon icon="hide"></custom-icon>
+                                </custom-button>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <custom-button onclick="doLogin(this)">로그인</custom-button>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <custom-button onclick="openPopup('google-login')" class="google">
+                                <custom-icon icon="google" size="20px"></custom-icon>
+                                <span class="content" data-popup="google">Google로 로그인</span>
+                            </custom-button>
+                        </span>
+                    </p>
+                    <p class="desc">
+                        <custom-a href="popup:forgot-password" value="비밀번호 재설정">비밀번호를 잊어버리셨나요?</custom-a>
+                        <custom-a href="popup:signup" value="회원가입">아직 회원이 아니신가요?</custom-a>
+                    </p>
+                </form>
+            </section>
+        </article>
+        <article class="popup" data-popup="forgot-password">
+            <section>
+                <h1>비밀번호 재설정</h1>
+                <p class="desc">비밀번호를 잊어버리셨나요?</p>
+                <form class="email-check" novalidate>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="mail" class="decorate" ></custom-icon>
+                                <input type="email" name="email" placeholder="이메일" required>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="code" class="decorate" ></custom-icon>
+                                <input type="text" name="code" placeholder="인증코드">
+                            </span>
+                            <custom-button onclick="emailVerify(this)">발송</custom-button>
+                        </span>
+                    </p>
+                </form>
+                <form>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="password" class="decorate"></custom-icon>
+                                <input type="password" name="password" placeholder="비밀번호" required>
+                                <custom-button onclick="togglePassword(this)" value="비밀번호 보기" class="show">
+                                    <custom-icon icon="hide"></custom-icon>
+                                </custom-button>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <custom-button onclick="resetPassword(this)">재설정</custom-button>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="desc">
+                                <custom-a href="popup:signup">회원가입</custom-a>
+                                <span class="separator">|</span>
+                                <custom-a href="popup:login">로그인</custom-a>
+                            </span>
+                        </span>
+                    </p>
+                </form>
+            </section>
+        </article>
+        <article class="popup" data-popup="account">
+            <nav>
+                <ul>
+                    <li>
+                        <custom-button onclick="openPopup('account', 0)">
+                            <custom-icon icon="account"></custom-icon>
+                            <span class="content">계정 정보</span>
+                        </custom-button>
+                    </li>
+                    <li>
+                        <custom-button onclick="openPopup('account', 1)">
+                            <custom-icon icon="password"></custom-icon>
+                            <span class="content">정보 수정</span>
+                        </custom-button>
+                    </li>
+                    <li>
+                        <custom-button onclick="openPopup('account', 2)">
+                            <custom-icon icon="gift"></custom-icon>
+                            <span class="content">플랜 구독</span>
+                        </custom-button>
+                    </li>
+                    <li>
+                        <custom-button onclick="openPopup('account', 3)">
+                            <custom-icon icon="name"></custom-icon>
+                            <span class="content">계정 탈퇴</span>
+                        </custom-button>
+                    </li>
+                </ul>
+            </nav>
+            <section>
+                <form class="info" novalidate>
+                    <p>
+                        <span class="content">
+                            <span class="account">
+                                <span class="email">pianhwa@gmail.com</span>
+                                <span class="role">User</span>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="leftToken">
+                                <span class="label">남은 토큰량</span>
+                                <span class="amount"></span>
+                            </span>
+                            <custom-button onclick="logout()" class="logout">로그아웃</custom-button>
+                        </span>
+                    </p>
+                </form>
+            </section>
+            <section>
+                <form class="info" id="renderInfo" novalidate>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="password" class="decorate"></custom-icon>
+                                <input type="password" name="currentPassword" placeholder="현 비밀번호" required>
+                                <custom-button onclick="togglePassword(this)" value="비밀번호 보기" class="show">
+                                    <custom-icon icon="hide"></custom-icon>
+                                </custom-button>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="password" class="decorate"></custom-icon>
+                                <input type="password" name="newPassword" placeholder="새 비밀번호" required>
+                                <custom-button onclick="togglePassword(this)" value="비밀번호 보기" class="show">
+                                    <custom-icon icon="hide"></custom-icon>
+                                </custom-button>
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <span class="input">
+                                <custom-icon icon="name" class="decorate"></custom-icon>
+                                <input type="text" name="username" placeholder="이름">
+                            </span>
+                        </span>
+                    </p>
+                    <p>
+                        <span class="content">
+                            <custom-button onclick="updateUser(this)">재설정</custom-button>
+                        </span>
+                    </p>
+                </form>
+            </section>
+            <section>
+                <div class="plan">
+                    <h1>BASIC</h1>
+                    <ul>
+                        <li><span class="name">토큰량:</span><span class="value">10,000</span></li>
+                        <li><span class="name">사용 가능한 모델:</span><span class="value">MODELS</span></li>
+                        <li><span class="name">가격:</span><span class="value">10,000</span></li>
+                    </ul>
+                    <custom-button onclick="" disabled>선택</custom-button>
+                </div>
+                <div class="plan">
+                    <h1>PRO</h1>
+                    <ul>
+                        <li><span class="name">토큰량:</span><span class="value">10,000</span></li>
+                        <li><span class="name">사용 가능한 모델:</span><span class="value">MODELS</span></li>
+                        <li><span class="name">가격:</span><span class="value">10,000</span></li>
+                    </ul>
+                    <custom-button onclick="">선택</custom-button>
+                </div>
+                <div class="plan">
+                    <h1>PREMIUM</h1>
+                    <ul>
+                        <li><span class="name">토큰량:</span><span class="value">10,000</span></li>
+                        <li><span class="name">사용 가능한 모델:</span><span class="value">MODELS</span></li>
+                        <li><span class="name">가격:</span><span class="value">10,000</span></li>
+                    </ul>
+                    <custom-button onclick="">선택</custom-button>
+                </div>
+            </section>
+            <section>
+                <form>
+                    <p>
+                        <span class="content">
+                            <custom-button onclick="withdraw()">계정 탈퇴</custom-button>
+                        </span>
+                    </p>
+                </form>
+            </section>
+        </article>
+    </div>
+
+</div>
+</body>
+</html>
