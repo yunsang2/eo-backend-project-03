@@ -1,0 +1,525 @@
+/* icon */
+custom-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+custom-icon > svg {
+    width: 1em; height: 1em;
+}
+
+/* CustomAnchor */
+custom-a {
+    display: inline-block;
+}
+
+custom-a[href] {
+    cursor: pointer;
+}
+
+custom-a[href]:hover {
+    text-decoration: underline;
+}
+
+/* Pre Shortcut */
+.shortcut {
+    display: inline;
+    font: 300 0.82em / 1 sans-serif;
+    opacity: 0.8;
+}
+
+/* CustomButton */
+custom-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* CustomHint */
+custom-hint {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    
+    position: fixed;
+    z-index: 9999;
+
+    padding: 8px;
+
+    background: var(--main-bg);
+    border: var(--main-border);
+    border-radius: 8px;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 60ms ease;
+}
+
+custom-hint > p {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+custom-hint > p > h1 {
+    color: var(--text-02);
+    font: normal 0.88em sans-serif;
+}
+
+custom-hint > p > .tag {
+    padding: 2px 4px;
+
+    color: var(--main-bg);
+    font: bold .76em sans-serif;
+
+    border-radius: 4px;
+}
+
+custom-hint > p > .tag.type {
+    background: var(--red);
+}
+
+custom-hint > p > .tag.shortcut {
+    background: var(--yellow);
+}
+
+custom-hint > .desc {
+    color: var(--text-05);
+    font: 300 .82em / 1.6 sans-serif;
+}
+
+/* Input, Button */
+input, textarea, button {
+    background: none;
+    border: none; outline: none;
+    color: inherit; font: inherit;
+}
+
+input[type="password"] {
+    font-size: 1.12em;
+    letter-spacing: 0.64em;
+    font-family: monospace;
+}
+
+input[type="password"]::placeholder {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    font-size: 0.88em;
+    letter-spacing: normal;
+    font-family: sans-serif;
+}
+
+button, input[type="button reset submit"] {
+    display: flex;
+    align-items: center;
+    padding: 0; margin: 0;
+    cursor: pointer;
+}
+
+/* Anchor */
+a {
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* LeftToken */
+.leftToken {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    height: var(--item-size);
+    padding: 4px 6px 4px 16px;
+    box-sizing: border-box;
+
+    background-color: var(--main-bg);
+    border: var(--main-border);
+    border-radius: calc(var(--item-size) / 2);
+
+    font: 400 .92rem / 1 sans-serif;
+}
+
+.leftToken > .amount {
+    font: bold .92em sans-serif;
+    padding: 2px 6px;
+    background: var(--yellow);
+    border-radius: 1em;
+    color: var(--main-bg);
+}
+
+/* Popup */
+#popups {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+
+    backdrop-filter: blur(3px);
+
+    white-space: nowrap;
+
+    transition: 60ms ease;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+#popups:has(.opened) {
+    opacity: 1;
+    pointer-events: all;
+}
+
+#popups > .popup {
+    display: flex;
+
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -45%);
+
+    background: var(--main-bg);
+    border: var(--main-border);
+    border-radius: 12px;
+
+    font: 300 .8em sans-serif;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+#popups > .popup:has(> .close:only-child) {
+    padding: 20px;
+}
+
+#popups > .popup:has(.opened) {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    pointer-events: all;
+}
+
+#popups > .popup > .close {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 1.6em;
+}
+
+#popups > .popup .desc {
+    padding: 0 .6em;
+
+    color: var(--text-03);
+    font: 300 .92em / 2 sans-serif;
+    text-align: center;
+    white-space: wrap;
+}
+
+#popups > .popup p.desc {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#popups > .popup .separator {
+    padding: 0 .4em;
+}
+
+#popups > .popup .invalid {
+    color: var(--red);
+}
+
+#popups > .popup > nav {
+    position: relative;
+    padding: 20px;
+}
+
+#popups > .popup:has(section) > nav::after {
+    content: '';
+    display: block;
+
+    position: absolute;
+    top: 50%; right: 0;
+    transform: translateY(-50%);
+
+    width: 1px; height: 100%;
+
+    border-right: var(--main-border);
+}
+
+#popups > .popup:has(nav):has(section) {
+    height: 55%;
+    max-height: 55%;
+}
+
+#popups > .popup > nav > ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#popups > .popup > nav > ul > li {
+    display: flex;
+    gap: 6px;
+}
+
+#popups > .popup > nav > ul > li > custom-button {
+    flex: 1;
+
+    display: flex;
+    justify-content: left;
+    align-items: center;
+
+    font-size: 1.18em;
+}
+
+#popups > .popup > nav > ul > li > custom-button > custom-icon {
+    font-size: 1.16em;
+}
+
+#popups > .popup > nav > ul > li > custom-button > .content {
+    padding-right: 20px;
+}
+
+#popups > .popup > section {
+    display: none;
+    padding: 32px;
+    max-height: 10%;
+}
+
+#popups > .popup > section.opened {
+    display: flex;
+}
+
+#popups > .popup form {
+    display: flex;
+}
+
+#popups > .popup > section,
+#popups > .popup form {
+    flex-direction: column;
+    gap: 12px;
+}
+
+#popups > .popup > section h1 {
+    font: bold 1.42em sans-serif;
+    text-align: center;
+}
+
+#popups > .popup form > p {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    min-width: 330px;
+}
+
+#popups > .popup form > p > .content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    width: 100%;
+}
+
+#popups > .popup form > p > .content > .account {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 6px;
+    box-sizing: border-box;
+
+    background: var(--text-03);
+    color: var(--main-bg);
+
+    border-radius: 8px;
+}
+
+#popups > .popup form > p > .content > .account > .email {
+    font: 400 1.12em / 1 sans-serif;
+}
+
+#popups > .popup form > p > .content > .account > .role {
+    color: #a11313;
+    font: bold 1.18em / 1 sans-serif;
+}
+
+#popups > .popup .input {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    position: relative;
+
+    padding: 4px;
+    box-sizing: border-box;
+    
+    background: var(--main-bg);
+    border: var(--main-border);
+    border-radius: 6px;
+}
+
+#popups > .popup .input.required::after {
+    content: "*";
+
+    position: absolute;
+    top: 4px; left: 4px;
+
+    color: var(--red);
+    font: 300 1.6em / 1 sans-serif;
+}
+
+#popups > .popup .input.required,
+#popups > .popup p:has(.invalid) > .content .input {
+    border: 1px solid var(--red) !important;
+    color: var(--red) !important;
+}
+
+#popups > .popup .input:has(input:focus) {
+    color: var(--yellow);
+}
+
+#popups > .popup .input:has(input:disabled) {
+    opacity: .6;
+    pointer-events: none;
+}
+
+#popups > .popup .input custom-icon {
+    width: 1.6em; height: 1.6em;
+}
+
+#popups > .popup .input custom-icon > svg {
+    font-size: 1.32em;
+}
+
+#popups > .popup .input > .show {
+    opacity: 0;
+    transition: opacity 40ms ease;
+}
+
+#popups > .popup .input > .show:hover {
+    opacity: 1 !important;
+}
+
+#popups > .popup .input custom-icon,
+#popups > .popup .input:has(input:focus) > .show,
+#popups > .popup .input:has(input[type="text"]) > .show {
+    opacity: .64;
+}
+
+.input > input {
+    flex: 1;
+}
+
+#popups > .popup > section > form > p > .content > custom-button {
+    justify-content: center;
+    gap: 8px;
+
+    padding: 8px 16px;
+
+    background: var(--text-03);
+    border-radius: 6px;
+
+    color: black;
+    font: 400 1.12em sans-serif;
+    text-align: center;
+}
+
+#popups > .popup > section > form > p > .content > custom-button:only-child {
+    flex: 1;
+}
+
+#popups > .popup .google {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    position: relative;
+
+    min-width: 0;
+    padding: 8px;
+
+    border: 1px solid var(--text-05);
+    border-radius: 6px;
+
+    color: var(--text-02);
+    font-weight: 400;
+}
+
+#popups > .popup :has(.plan) {
+    flex-direction: row;
+    gap: 20px;
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+#popups > .popup .plan {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+
+    height: 100%;
+    min-width: 320px;
+    padding: 20px;
+    box-sizing: border-box;
+
+    background: var(--main-bg);
+    border: var(--main-border);
+    border-radius: 8px;
+}
+
+#popups > .popup .plan > ul {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#popups > .popup .plan > ul > li {
+    display: flex;
+}
+
+#popups > .popup .plan > ul > li  > .name {
+    flex: 1;
+    font: 400 1.16em sans-serif;
+}
+
+#popups > .popup .plan > ul > li > .value {
+    flex: 1;
+}
+
+#popups > .popup .plan > custom-button {
+    font: bold 1.12em / 1 sans-serif;
+}
+
+#popups > .popup .plan > custom-button[disabled] {
+    opacity: .6;
+    pointer-events: none;
+}
+
+:has(.logout) {
+    justify-content: space-between !important;
+}
+
+.logout {
+    background: var(--main-bg) !important;
+    border: 1px solid var(--red);
+    color: var(--red) !important;
+}
